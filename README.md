@@ -2,6 +2,15 @@
 
 este projeto está sendo criado para auxiliar no gerenciamento de armazéns
 
+## SUMARIO
+
+ - INTEGRANTES
+ - FUNCIONAMENTO
+ - FERRAMENTAS
+ - ARQUITETURA
+ - REQUISITOS
+ - INSTALAÇÃO
+
 ## INTEGRANTES
 
  - Vitor Kael
@@ -79,13 +88,13 @@ armazem
 |`rest_service`| esta pasta estará localizada a implementação da nossa classe que simula o modelo de API REST, porém feito localmente|
 |`database`| esta pasta será utilizada para criar e gerenciar o banco de dados|
 
-## INSTALAÇÃO
-
-para poder executar nosso aplicativo você deve clonar o repositório, e executar o comando `make install`, e então `make run`.
-
 ## REQUISITOS
 
 |requisitos|versão|
 |----------|------|
 |`python`| 3.10+ |
 |`flet`| 0.86.5+ |
+
+## INSTALAÇÃO
+
+para poder executar nosso aplicativo você deve clonar o repositório, e executar o comando `make install`, e então `make run`.
