@@ -15,7 +15,7 @@ este projeto está sendo criado para auxiliar no gerenciamento de armazéns
 
  - Vitor Kael
  - Fernando Moskven
- - Higor
+ - Higor Schuenck Dos Santos
  - Davi Dos Santos Fideles
 
 ## FUNCIONAMENTO

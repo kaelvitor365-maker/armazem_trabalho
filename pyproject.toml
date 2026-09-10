@@ -6,7 +6,7 @@ authors = [
     { name = "Vitor Kael" },
     { name = "Davi Dos Santos Fideles" },
     { name = "Fernando Moskven" },
-    { name = "Higor" } 
+    { name = "Higor Schuenck Dos Santos" } 
 ]
 requires-python = ">=3.10"
 dependencies = [
