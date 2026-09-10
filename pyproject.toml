@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "esse será um sistema criado para gerenciamento de armazens, utilizando flet para interface e sqlite para o banco de dados"
 authors = [
     { name = "Vitor Kael" },
-    { name = "Davi Fideles" },
+    { name = "Davi Dos Santos Fideles" },
     { name = "Fernando Moskven" },
     { name = "Higor" } 
 ]
