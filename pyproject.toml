@@ -1,0 +1,27 @@
+[project]
+name = "armazem"
+version = "0.1.0"
+description = "esse será um sistema criado para gerenciamento de armazens, utilizando flet para interface e sqlite para o banco de dados"
+authors = [
+    { name = "Vitor Kael" },
+    { name = "Davi Fideles" },
+    { name = "Fernando Moskven" },
+    { name = "Higor" } 
+]
+requires-python = ">=3.10"
+dependencies = [
+    "flet"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["armazem"]
+
