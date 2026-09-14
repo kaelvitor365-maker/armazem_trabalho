@@ -1,16 +1,19 @@
 import sqlite3
 
-def start_database(dest_path: str, src_path: str) -> sqlite3.Connection:
-
-    conn = sqlite3.connect(dest_path)
-    conn.execute("PRAGMA foreign_keys = ON")
+def starting_database(path: str, dest: str) -> sqlite3.Connection:
+    conn = sqlite3.Connection(
+        dest
+    )
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
 
     curr = conn.cursor()
 
-    with open(src_path, "r", encoding="utf-8") as arq:
-        curr.executescript(arq.read())
-
-    conn.commit()
+    curr.executescript(path)
 
     return conn
+
+
+default_database = starting_database("schema.sql", "armazem.db")
+
+

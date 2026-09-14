@@ -1,34 +1,45 @@
-import database.config_database as config, typing
+from database.config_database import sqlite3, starting_database, default_database
+
 
 class Database:
-
-    def __init__(self, conn: config.sqlite3.Connection) -> None:
+    def __init__(self, conn: sqlite3.Connection):
         self._conn = conn
-        self._curr = conn.cursor()
+        self._curr = self._conn.cursor()
 
-    def execute(self, sql: str, parametrers: config.sqlite3._Parameters = ()) -> "Database":
-        self._curr.execute(
-            sql,
-            parametrers
-        )
-        return self
 
+
+    @property
+    def rowcount(self) -> int:
+        return self._curr.rowcount
+
+    @property
+    def fetchall(self) -> list[sqlite3.Row]:
+        return self._curr.fetchall()
+
+    @property
+    def lastrowid(self) -> int:
+        return self._curr.lastrowid
+
+    @property
     def commit(self) -> None:
         self._conn.commit()
 
+    @property
     def rollback(self) -> None:
         self._conn.rollback()
 
-    def auto_execute(self, sql: str, parametrers: config.sqlite3._Parameters = ()) ->"Database":
+    def execute(self, sql: str, parameters: sqlite3._Parameters = ()) -> "Database":
         self._curr.execute(
             sql,
-            parametrers
+            parameters
         )
-        self._conn.commit()
         return self
 
-    def lastrowid(self):
-        return self._curr.lastrowid
-
-    def fetchall(self) -> typing.Iterable[dict[str, typing.Any]]:
-        return self._curr.fetchall()
+    def safe_execute(self, sql: str, parameters: sqlite3._Parameters = ()) -> "Database":
+        with self._conn as conn:
+            conn.execute(
+                sql,
+                parameters
+            )
+        return self
+    
