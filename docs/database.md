@@ -126,6 +126,17 @@ client.produtos.find_many(where=[
 # WHERE price > ? AND id_user = ?
 ```
 
+### Forma alternativa: sem sobrecarga, direto no construtor
+
+Se preferir não usar os operadores sobrecarregados, é possível passar o valor e o operador diretamente na criação do `Columns`, com o mesmo resultado:
+
+```python
+Columns("price", 100, ">")           # equivalente a Columns("price") > 100
+Columns("id_user", 1, "=")           # equivalente a Columns("id_user") == 1
+```
+
+As duas formas produzem exatamente a mesma condição, então é só questão de preferência de estilo.
+
 > **Não existe suporte a `OR`.** Foi uma decisão deliberada: o projeto é pequeno e as buscas reais são quase todas por `id`, então a complexidade de suportar `OR`/`NOT` genérico (o que exigiria sobrecarregar `&`, `|`, `~` e montar uma árvore de expressões) não se paga. Se precisar de um "OR" pontual (ex: buscar por uma lista de ids), resolva com um método dedicado usando `IN (...)`.
 
 ### Erro comum: esquecer de aplicar uma comparação
