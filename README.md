@@ -58,26 +58,32 @@ armazem
 ├─ database
 │  ├─ __init__.py
 │  ├─ client.py
+│  ├─ config_database.py
 │  ├─ data_functions
-│  │  └─ __init__.py
+│  │  ├─ __init__.py
+│  │  └─ atomic_data.py
+│  ├─ model.py
 │  └─ schema.sql
 ├─ docs
-│  └─ makefile.md
+│  ├─ makefile.md
+│  └─ rest_service.md
 ├─ interface
 │  ├─ __init__.py
 │  ├─ app.py
 │  ├─ style
+│  │  └─ __init__.py
 │  └─ widgets
 │     └─ __init__.py
 ├─ makefile
 ├─ pyproject.toml
 └─ rest_service
+   ├─ README.md
    ├─ __init__.py
-   ├─ errors
-   │  └─ __init__.py
+   ├─ rest_client.py
    ├─ rest_creator.py
    └─ routers
-      └─ __init__.py
+      ├─ __init__.py
+      └─ routers.py
 
 ```
 
@@ -98,3 +104,4 @@ armazem
 ## INSTALAÇÃO
 
 para poder executar nosso aplicativo você deve clonar o repositório, e executar o comando `make install`, e então `make run`.
+

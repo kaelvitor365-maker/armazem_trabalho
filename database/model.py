@@ -83,17 +83,60 @@ class Columns:
 
 
 class Model:
+    """
+    CRUD genérico para uma tabela do banco, com suporte a filtros (where),
+    seleção de colunas (columns) e joins com outras tabelas (includes).
+
+    Cada instância representa uma tabela específica: toda query gerada por
+    seus métodos usa self._table como tabela principal.
+    """
+
     def __init__(self, table: str, conn: sql.Connection | Database) -> None:
+        """
+        Construtor do Model.
+
+        Args:
+            table: nome da tabela que este Model vai manipular.
+            conn: conexão já pronta (Database) ou uma sqlite3.Connection crua,
+                que nesse caso é automaticamente envolvida em um Database.
+        """
         self._table = str(table)
         self._conn = conn if isinstance(conn, Database) else Database(conn)
 
-
     def find_many(self,
-                columns: typing.Optional[set[str]] = None,
-                where: typing.Optional[list[Columns]] = None,
-                includes: typing.Optional[dict[str, list[str | Columns]]] = None
-                ) -> list[sql.Row]:
+                  columns: typing.Optional[set[str]] = None,
+                  where: typing.Optional[list[Columns]] = None,
+                  includes: typing.Optional[dict[str, list[str | Columns]]] = None
+                  ) -> list[sql.Row]:
+        """
+        Busca múltiplos registros da tabela, com filtros e joins opcionais.
 
+        Sem "includes", nomes em "columns" e "where" são sempre da tabela
+        principal (self._table). Com "includes", colunas sem ponto ("coluna")
+        são assumidas como da tabela principal; colunas de tabelas relacionadas
+        precisam do prefixo explícito ("tabela.coluna").
+
+        Args:
+            columns: colunas a retornar. Se None, retorna todas ("*").
+            where: lista de condições (Columns), combinadas sempre com AND.
+                Cada Columns precisa ter um operador aplicado (==, >, etc).
+            includes: dicionário com as chaves "tables", "join" e "on" para
+                montar joins com outras tabelas. "tables" lista as tabelas
+                envolvidas, "join" o tipo de cada junção (na mesma ordem de
+                "on"), e "on" as condições Columns(...) == Columns(...) que
+                definem cada junção.
+
+        Returns:
+            Lista de sqlite3.Row com os registros encontrados.
+
+        Raises:
+            ValueError: se alguma coluna em "where" não tiver operador aplicado,
+                se "includes" estiver incompleto (faltando tables/join/on),
+                se "join" e "on" tiverem tamanhos diferentes, se algum tipo de
+                join for inválido, se não for possível identificar a tabela de
+                uma condição do "on", ou se uma tabela usada no "on" não tiver
+                sido declarada em "tables".
+        """
         columns_sql = "*"
         where_sql = ""
         p_where_sql = ()
@@ -189,20 +232,52 @@ class Model:
         ).fetchall
 
     def find_all(self,
-                includes: typing.Optional[dict[str, list[str | Columns]]] = None
-                ) -> list[sql.Row]:
+                 includes: typing.Optional[dict[str, list[str | Columns]]] = None
+                 ) -> list[sql.Row]:
+        """
+        Atalho para find_many() sem filtro de colunas nem de where, retornando
+        todos os registros da tabela (com joins opcionais).
+
+        Args:
+            includes: mesmo formato aceito por find_many().
+
+        Returns:
+            Lista de sqlite3.Row com todos os registros encontrados.
+        """
         return self.find_many(includes=includes)
 
-
     def find_one(self,
-                columns: typing.Optional[set[str]] = None,
-                where: typing.Optional[list[Columns]] = None,
-                includes: typing.Optional[dict[str, list[str | Columns]]] = None
-                ) -> sql.Row | None:
+                 columns: typing.Optional[set[str]] = None,
+                 where: typing.Optional[list[Columns]] = None,
+                 includes: typing.Optional[dict[str, list[str | Columns]]] = None
+                 ) -> sql.Row | None:
+        """
+        Busca um único registro, retornando o primeiro resultado encontrado.
+
+        Args:
+            columns: mesmo formato aceito por find_many().
+            where: mesmo formato aceito por find_many().
+            includes: mesmo formato aceito por find_many().
+
+        Returns:
+            O primeiro sqlite3.Row encontrado, ou None se nada for encontrado.
+        """
         result = self.find_many(columns=columns, where=where, includes=includes)
         return result[0] if result else None
 
     def create(self, data: dict[str, typing.Any]) -> int:
+        """
+        Insere um novo registro na tabela.
+
+        Args:
+            data: dicionário coluna -> valor a ser inserido.
+
+        Returns:
+            O id gerado para o registro recém-criado.
+
+        Raises:
+            ValueError: se "data" estiver vazio.
+        """
         if not data:
             raise ValueError("O PARAMETRO 'data' NÃO PODE SER VAZIO")
 
@@ -216,12 +291,25 @@ class Model:
         )
         return self._conn.lastrowid
 
-
     def update(self,
-            data: dict[str, typing.Any],
-            where: typing.Optional[list[Columns]] = None
-            ) -> int:
+               data: dict[str, typing.Any],
+               where: typing.Optional[list[Columns]] = None
+               ) -> int:
+        """
+        Atualiza registros existentes na tabela.
 
+        Args:
+            data: dicionário coluna -> novo valor.
+            where: lista de condições (Columns) para filtrar quais registros
+                serão atualizados. Sem "where", todos os registros são afetados.
+
+        Returns:
+            Quantidade de linhas afetadas pelo update.
+
+        Raises:
+            ValueError: se "data" estiver vazio, ou se alguma coluna em "where"
+                não tiver operador aplicado.
+        """
         if not data:
             raise ValueError("O PARAMETRO 'data' NÃO PODE SER VAZIO")
 
@@ -245,11 +333,23 @@ class Model:
         )
         return self._conn.rowcount
 
-
     def delete(self,
-            where: typing.Optional[list[Columns]] = None
-            ) -> int:
+               where: typing.Optional[list[Columns]] = None
+               ) -> int:
+        """
+        Remove registros da tabela.
 
+        Args:
+            where: lista de condições (Columns) para filtrar quais registros
+                serão removidos. Sem "where", todos os registros da tabela
+                são apagados.
+
+        Returns:
+            Quantidade de linhas removidas.
+
+        Raises:
+            ValueError: se alguma coluna em "where" não tiver operador aplicado.
+        """
         where_sql = ""
         p_where_sql = ()
 
@@ -269,16 +369,50 @@ class Model:
         )
         return self._conn.rowcount
 
-    def _where_parameters(self, c: Columns) -> bool:
+    def _where_parameters(self, c: Columns) -> str:
+        """
+        Monta a condição SQL de uma coluna para uso dentro de um WHERE.
+
+        Se a comparação for contra outra Columns (coluna de outra tabela,
+        usado em joins), o valor é escrito literalmente no SQL. Caso
+        contrário, usa "?" como placeholder de parâmetro.
+
+        Args:
+            c: a condição a ser convertida em texto SQL.
+
+        Returns:
+            A condição formatada, pronta para entrar em um WHERE/ON.
+        """
         parameters = "?" if not c.is_column else self._qualify(c.value.column)
         return f"{self._qualify(c.column)} {_inv_compare[c.operator]} {parameters}"
 
     def _alias(self, s: str) -> str:
+        """
+        Gera o apelido (alias) de uma coluna já qualificada, no formato
+        "tabela__coluna", usado para diferenciar colunas de mesmo nome
+        vindas de tabelas diferentes num join.
+
+        Args:
+            s: coluna já qualificada, no formato "tabela.coluna".
+
+        Returns:
+            O alias no formato "tabela__coluna".
+        """
         ret = s.split('.')
         return f"{ret[0]}__{ret[1]}"
-    
 
     def _qualify(self, s: str) -> str:
-        return s if "." in s else f"{self._table}.{s}"
+        """
+        Garante que uma coluna esteja qualificada com o nome da tabela.
 
-print("")
+        Se "s" já contiver um ponto (ex: "produtos.id"), é retornada como
+        está. Caso contrário, assume que pertence à tabela principal deste
+        Model (self._table).
+
+        Args:
+            s: nome da coluna, qualificado ou não.
+
+        Returns:
+            A coluna sempre no formato "tabela.coluna".
+        """
+        return s if "." in s else f"{self._table}.{s}"
