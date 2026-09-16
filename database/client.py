@@ -22,3 +22,4 @@ class Client:
         self.produtos = Model('produtos', self._conn)
         self.tipo_produtos = Model('tipo_produtos', self._conn)
         self.armazem = Model('armazem', self._conn)
+        self.armazem = Model('log'), self._conn)
