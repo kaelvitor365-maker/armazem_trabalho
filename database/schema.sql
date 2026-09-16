@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS tipo_produtos;
 DROP TABLE IF EXISTS produtos;
 DROP TABLE IF EXISTS armazem;
+DROP TABLE IF EXISTS log;
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
@@ -41,4 +42,18 @@ CREATE TABLE armazem (
     UNIQUE (id_produto, id_tipo_produto),
     FOREIGN KEY (id_produto) REFERENCES produtos (id),
     FOREIGN KEY (id_tipo_produto) REFERENCES tipo_produtos (id)
+);
+
+CREATE TABLE log (
+    id INTEGER PRIMARY KEY,
+    id_user INTEGER NOT NULL,
+    id_produto INTEGER NOT NULL,
+    quant_transacao INTEGER NOT NULL,
+    transacao INTEGER NOT NULL,
+    data TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (quant_transacao > 0),
+    CHECK (transacao IN (0, 1)),
+    FOREIGN KEY (id_user) REFERENCES users (id),
+    FOREIGN KEY (id_produto) REFERENCES produtos (id)
 );
