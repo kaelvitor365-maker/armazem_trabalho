@@ -292,6 +292,7 @@ class Client:
         self.produtos = Model('produtos', self._conn)
         self.tipo_produtos = Model('tipo_produtos', self._conn)
         self.armazem = Model('armazem', self._conn)
+        self.log = Model('log', self._conn)
 ```
 
 Adicionar um parâmetro opcional `conn` no `__init__` (como no exemplo acima) permite injetar qualquer implementação de `Database` de fora, sem precisar editar o `Client` toda vez que trocar de banco.
